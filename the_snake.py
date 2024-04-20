@@ -127,7 +127,7 @@ class Snake(GameObject):
             pygame.draw.rect(screen, BORDER_COLOR, rect, 1)
 
 
-def handle_events(snake):
+def handle_case(snake):
     """Описываем логику обработки событий"""
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -159,7 +159,7 @@ def main():
         clock.tick(SPEED)
         screen.fill(BOARD_BACKGROUND_COLOR)
 
-        handle_events(snake)
+        handle_case(snake)
 
         # Двигаем змейку
         snake.move(apple)
