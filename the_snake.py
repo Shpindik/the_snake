@@ -153,6 +153,7 @@ class Snake(GameObject):
         """Метод получения позиции головы змейки"""
         return self.positions[0]
 
+
 def handle_keys(snake):
     """Описываем логику обработки событий"""
     for event in pygame.event.get():
