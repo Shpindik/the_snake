@@ -45,7 +45,7 @@ clock = pygame.time.Clock()
 class GameObject:
     """Конструктор класса"""
 
-    def __init__(self, position):
+    def __init__(self, position=(0, 0)):
         self.position = position
 
     def draw(self):
@@ -55,6 +55,10 @@ class GameObject:
 
 class Apple(GameObject):
     """Метод отрисовки яблока на игровом поле"""
+
+    def __init__(self, position=(0, 0)):
+        super().__init__(position)
+                
 
     def draw(self):
         """Метод отрисовки яблока на игровом поле"""
