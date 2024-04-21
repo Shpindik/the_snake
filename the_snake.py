@@ -67,7 +67,7 @@ class Apple(GameObject):
 class Snake(GameObject):
     """Конструктор класса змейки"""
 
-    def __init__(self, position):
+    def __init__(self, position=(0,0)):
         super().__init__(position)
         self.positions = [position]
         self.direction = RIGHT
