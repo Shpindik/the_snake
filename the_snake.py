@@ -47,6 +47,7 @@ class GameObject:
 
     def __init__(self, position=(0, 0)):
         self.position = position
+        self.body_color = (0, 0, 0)
 
     def draw(self):
         """Метод отрисовки обьекта на игровом поле"""
@@ -58,6 +59,7 @@ class Apple(GameObject):
 
     def __init__(self, position=(0, 0)):
         super().__init__(position)
+        self.body_color = (255, 0, 0)
 
     def draw(self):
         """Метод отрисовки яблока на игровом поле"""
@@ -66,12 +68,18 @@ class Apple(GameObject):
             GRID_SIZE, GRID_SIZE)
         pygame.draw.rect(screen, APPLE_COLOR, rect)
 
+    def randomize_position(self):
+        """Метод рандомизации позиции яблока"""
+        self.position = (randint(0, GRID_WIDTH - 1) * GRID_SIZE,
+                         randint(0, GRID_HEIGHT - 1) * GRID_SIZE)
+
 
 class Snake(GameObject):
     """Конструктор класса змейки"""
 
     def __init__(self, position=(0, 0)):
         super().__init__(position)
+        self.body_color = (0, 255, 0)
         self.positions = [position]
         self.direction = RIGHT
         self.next_direction = None
@@ -129,8 +137,23 @@ class Snake(GameObject):
             pygame.draw.rect(screen, SNAKE_COLOR, rect)
             pygame.draw.rect(screen, BORDER_COLOR, rect, 1)
 
+    def reset(self):
+        """Метод сброса змейки"""
+        self.positions = [self.position]
+        self.direction = RIGHT
+        self.next_direction = None
 
-def handle_case(snake):
+    def update_direction(self):
+        """Метод обновления направления движения змейки"""
+        if self.next_direction:
+            self.direction = self.next_direction
+            self.next_direction = None
+
+    def get_head_position(self):
+        """Метод получения позиции головы змейки"""
+        return self.positions[0]
+
+def handle_keys(snake):
     """Описываем логику обработки событий"""
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -162,7 +185,7 @@ def main():
         clock.tick(SPEED)
         screen.fill(BOARD_BACKGROUND_COLOR)
 
-        handle_case(snake)
+        handle_keys(snake)
 
         # Двигаем змейку
         snake.move(apple)
