@@ -51,7 +51,12 @@ class GameObject:
 
     def draw(self):
         """Метод отрисовки обьекта на игровом поле"""
-        pass
+        raise NotImplementedError
+
+    def get_rectangle(self, position, color, width):
+        """Метод возвращает прямоугольник"""
+        rect = pygame.Rect(position, (GRID_SIZE, GRID_SIZE))
+        pygame.draw.rect(screen, color, rect, width)
 
 
 class Apple(GameObject):
@@ -59,19 +64,19 @@ class Apple(GameObject):
 
     def __init__(self, position=(0, 0)):
         super().__init__(position)
-        self.body_color = (255, 0, 0)
 
     def draw(self):
         """Метод отрисовки яблока на игровом поле"""
-        rect = pygame.Rect(
-            self.position[0], self.position[1],
-            GRID_SIZE, GRID_SIZE)
-        pygame.draw.rect(screen, APPLE_COLOR, rect)
+        self.get_rectangle(self.position, APPLE_COLOR, 0)
 
-    def randomize_position(self):
+    def randomize_position(self, snake):
         """Метод рандомизации позиции яблока"""
-        self.position = (randint(0, GRID_WIDTH - 1) * GRID_SIZE,
-                         randint(0, GRID_HEIGHT - 1) * GRID_SIZE)
+        while True:
+            x = randint(0, GRID_WIDTH - 1) * GRID_SIZE
+            y = randint(0, GRID_HEIGHT - 1) * GRID_SIZE
+            if (x, y) not in snake.positions:
+                self.position = (x, y)
+            break
 
 
 class Snake(GameObject):
@@ -79,7 +84,6 @@ class Snake(GameObject):
 
     def __init__(self, position=(0, 0)):
         super().__init__(position)
-        self.body_color = (0, 255, 0)
         self.positions = [position]
         self.direction = RIGHT
         self.next_direction = None
@@ -91,35 +95,20 @@ class Snake(GameObject):
             self.next_direction = None
 
         # Получаем позицию змейки
-        x, y = self.positions[0]
+        x, y = self.get_head_position()
 
         # Вычисляем новую позицию змейки
-        x += self.direction[0] * GRID_SIZE
-        y += self.direction[1] * GRID_SIZE
+        dx, dy = self.direction
+
+        x += dx * GRID_SIZE
+        y += dy * GRID_SIZE
 
         # Обновляем позицию змейки при пересечении границ экрана
         x %= SCREEN_WIDTH
         y %= SCREEN_HEIGHT
 
-        # Проверяем столкновение с хвостом змейки
-        if (x, y) in self.positions[1:]:
-            print("Змейка съела сама себя!")
-            pygame.quit()
-            sys.exit()
-
         # Обновляем позицию головы змейки
         self.positions.insert(0, (x, y))
-
-        # Проверяем, съела ли змейка яблоко
-        if self.positions[0] == apple.position:
-            apple.position = (
-                randint(0, GRID_WIDTH - 1) * GRID_SIZE,
-                randint(0, GRID_HEIGHT - 1) * GRID_SIZE)
-            self.grow()
-
-        # Удаляем последний сегмент, чтобы длина змейки оставалась постоянной
-        else:
-            self.positions.pop()
 
     def grow(self):
         """Метод увелечения длинны после съедания яблока"""
@@ -127,13 +116,12 @@ class Snake(GameObject):
         x, y = tail
         dx, dy = self.direction
         self.positions.append((x - dx * GRID_SIZE, y - dy * GRID_SIZE))
-        # Удаляем последний сегмент, чтобы длина змейки оставалась постоянной
         self.positions.pop()
 
     def draw(self):
         """Метод отрисовки змейки на игровом поле"""
         for pos in self.positions:
-            rect = pygame.Rect(pos[0], pos[1], GRID_SIZE, GRID_SIZE)
+            rect = pygame.Rect(pos, (GRID_SIZE, GRID_SIZE))
             pygame.draw.rect(screen, SNAKE_COLOR, rect)
             pygame.draw.rect(screen, BORDER_COLOR, rect, 1)
 
@@ -169,18 +157,17 @@ def handle_keys(snake):
                 snake.next_direction = LEFT
             elif event.key == pygame.K_RIGHT and snake.direction != LEFT:
                 snake.next_direction = RIGHT
+            elif event.key == pygame.K_ESCAPE:
+                pygame.quit()
+                sys.exit()
 
 
 def main():
     """Описываем логику игры"""
-    apple = Apple((randint(0, GRID_WIDTH - 1) * GRID_SIZE,
-                  randint(0, GRID_HEIGHT - 1) * GRID_SIZE))
-
     pygame.init()
-    apple = Apple(
-        (randint(0, GRID_WIDTH - 1) * GRID_SIZE,
-         randint(0, GRID_HEIGHT - 1) * GRID_SIZE))
+    apple = Apple()
     snake = Snake((20, 240))
+    apple.randomize_position(snake)
 
     while True:
         clock.tick(SPEED)
@@ -190,6 +177,20 @@ def main():
 
         # Двигаем змейку
         snake.move(apple)
+
+        # Проверяем, съела ли змейка яблоко
+        if snake.get_head_position() == apple.position:
+            apple.randomize_position(snake)
+            snake.grow()
+        # Удаляем последний сегмент, чтобы длина змейки оставалась постоянной
+        else:
+            snake.positions.pop()
+
+        # Проверяем, столкнулась ли змейка с собой
+        if snake.get_head_position() in snake.positions[1:]:
+            snake.reset()
+            apple.randomize_position(snake)
+
 
 # Проверяем на столкновения или другие игровые события (пока не реализовано)
 
