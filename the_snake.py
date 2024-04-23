@@ -74,7 +74,7 @@ class Apple(GameObject):
         while True:
             x = randint(0, GRID_WIDTH - 1) * GRID_SIZE
             y = randint(0, GRID_HEIGHT - 1) * GRID_SIZE
-            if (x, y) not in snake.positions:
+            if (x, y) not in snake:
                 self.position = (x, y)
             break
 
@@ -167,7 +167,7 @@ def main():
     pygame.init()
     apple = Apple()
     snake = Snake((20, 240))
-    apple.randomize_position(snake)
+    apple.randomize_position(snake.position)
 
     while True:
         clock.tick(SPEED)
@@ -180,7 +180,7 @@ def main():
 
         # Проверяем, съела ли змейка яблоко
         if snake.get_head_position() == apple.position:
-            apple.randomize_position(snake)
+            apple.randomize_position(snake.position)
             snake.grow()
         # Удаляем последний сегмент, чтобы длина змейки оставалась постоянной
         else:
@@ -189,7 +189,7 @@ def main():
         # Проверяем, столкнулась ли змейка с собой
         if snake.get_head_position() in snake.positions[1:]:
             snake.reset()
-            apple.randomize_position(snake)
+            apple.randomize_position(snake.position)
 
 
 # Проверяем на столкновения или другие игровые события (пока не реализовано)
