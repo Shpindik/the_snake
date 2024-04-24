@@ -64,19 +64,20 @@ class Apple(GameObject):
 
     def __init__(self, position=(0, 0)):
         super().__init__(position)
+        self.body_color = APPLE_COLOR
 
     def draw(self):
         """Метод отрисовки яблока на игровом поле"""
-        self.get_rectangle(self.position, APPLE_COLOR, 0)
+        self.get_rectangle(self.position, self.body_color, 0)
 
-    def randomize_position(self, snake):
+    def randomize_position(self, occupied_positions):
         """Метод рандомизации позиции яблока"""
         while True:
             x = randint(0, GRID_WIDTH - 1) * GRID_SIZE
             y = randint(0, GRID_HEIGHT - 1) * GRID_SIZE
-            if (x, y) not in snake:
+            if (x, y) not in occupied_positions:
                 self.position = (x, y)
-            break
+                break
 
 
 class Snake(GameObject):
@@ -87,6 +88,7 @@ class Snake(GameObject):
         self.positions = [position]
         self.direction = RIGHT
         self.next_direction = None
+        self.body_color = SNAKE_COLOR
 
     def move(self, apple):
         """Метод перемещения змейки по игровому полю"""
@@ -98,10 +100,8 @@ class Snake(GameObject):
         x, y = self.get_head_position()
 
         # Вычисляем новую позицию змейки
-        dx, dy = self.direction
-
-        x += dx * GRID_SIZE
-        y += dy * GRID_SIZE
+        x, y = (x + self.direction[0] * GRID_SIZE,
+                y + self.direction[1] * GRID_SIZE)
 
         # Обновляем позицию змейки при пересечении границ экрана
         x %= SCREEN_WIDTH
@@ -122,7 +122,7 @@ class Snake(GameObject):
         """Метод отрисовки змейки на игровом поле"""
         for pos in self.positions:
             rect = pygame.Rect(pos, (GRID_SIZE, GRID_SIZE))
-            pygame.draw.rect(screen, SNAKE_COLOR, rect)
+            pygame.draw.rect(screen, self.body_color, rect)
             pygame.draw.rect(screen, BORDER_COLOR, rect, 1)
 
     def reset(self):
@@ -187,7 +187,7 @@ def main():
             snake.positions.pop()
 
         # Проверяем, столкнулась ли змейка с собой
-        if snake.get_head_position() in snake.positions[1:]:
+        if snake.get_head_position() in snake.positions[4:]:
             snake.reset()
             apple.randomize_position(snake.position)
 
