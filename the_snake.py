@@ -73,10 +73,10 @@ class Apple(GameObject):
     def randomize_position(self, occupied_positions):
         """Метод рандомизации позиции яблока"""
         while True:
-            x = randint(0, GRID_WIDTH - 1) * GRID_SIZE
-            y = randint(0, GRID_HEIGHT - 1) * GRID_SIZE
-            if (x, y) not in occupied_positions:
-                self.position = (x, y)
+            pos = (randint(0, GRID_WIDTH - 1) * GRID_SIZE,
+                   randint(0, GRID_HEIGHT - 1) * GRID_SIZE)
+            if (pos) not in occupied_positions:
+                self.position = (pos)
                 break
 
 
@@ -97,18 +97,18 @@ class Snake(GameObject):
             self.next_direction = None
 
         # Получаем позицию змейки
-        x, y = self.get_head_position()
+        position = self.get_head_position()
 
         # Вычисляем новую позицию змейки
-        x, y = (x + self.direction[0] * GRID_SIZE,
-                y + self.direction[1] * GRID_SIZE)
+        dx, dy = self.direction
+        position = (position[0] + dx * GRID_SIZE,
+                    position[1] + dy * GRID_SIZE)
 
         # Обновляем позицию змейки при пересечении границ экрана
-        x %= SCREEN_WIDTH
-        y %= SCREEN_HEIGHT
+        position = (position[0] % SCREEN_WIDTH, position[1] % SCREEN_HEIGHT)
 
         # Обновляем позицию головы змейки
-        self.positions.insert(0, (x, y))
+        self.positions.insert(0, (position))
 
     def grow(self):
         """Метод увелечения длинны после съедания яблока"""
