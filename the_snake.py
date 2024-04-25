@@ -100,15 +100,13 @@ class Snake(GameObject):
         position = self.get_head_position()
 
         # Вычисляем новую позицию змейки
+        x, y = position
         dx, dy = self.direction
-        position = (position[0] + dx * GRID_SIZE,
-                    position[1] + dy * GRID_SIZE)
-
-        # Обновляем позицию змейки при пересечении границ экрана
-        position = (position[0] % SCREEN_WIDTH, position[1] % SCREEN_HEIGHT)
+        new_position = ((x + dx * GRID_SIZE) % SCREEN_WIDTH,
+                        (y + dy * GRID_SIZE) % SCREEN_HEIGHT)
 
         # Обновляем позицию головы змейки
-        self.positions.insert(0, (position))
+        self.positions.insert(0, (new_position))
 
     def grow(self):
         """Метод увелечения длинны после съедания яблока"""
